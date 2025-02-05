@@ -1,0 +1,212 @@
+---
+title: "Appendix"
+author: "Statistics Final project"
+date: "2023-11-27"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+mobile_dataset<-read.csv("MobilePrice.csv",header = TRUE) 
+names(mobile_dataset)
+```
+Pie Chart
+```{r}
+
+library(ggplot2)
+ggplot(mobile_dataset, aes(x = "", fill = factor(price_range))) +
+  geom_bar(width = 1, stat = "count") +
+  coord_polar("y") +
+  labs(title = "Distribution of Price Ranges") +
+  theme_void() +
+  scale_fill_manual(values = c("#66c2a5", "#fc8d62", "#8da0cb", "#e78ac3"))+
+  labs(title = "Distribution of four_g Variable") +
+  ylab("Price Range") +
+  theme_minimal()
+
+```
+BAR CHART:
+```{r}
+ggplot(mobile_dataset, aes(x = factor(four_g))) +
+  geom_bar(fill = c("violet", "skyblue")) +  # Set colors for 1 and 0
+  labs(title = "Distribution of four_g Variable") +
+  xlab("four_g") +
+  ylab("Frequency") +
+  theme_minimal()
+
+```
+
+Histogram:
+```{r}
+hist(mobile_dataset$battery_power,main = "Histogram of battery power",
+     xlab = "battery power",col ="pink")
+hist(mobile_dataset$ram,main = "Histogram of Ram power",xlab = "Ram",
+     col="lightgreen")
+hist(mobile_dataset$px_width,main = "Histogram of px_width",
+     xlab = "px_width",col="violet")
+hist(mobile_dataset$px_height,main = "Histogram of px_height",
+     xlab = "px_height",col="lightblue")
+```
+
+boxplot
+```{r}
+
+library(ggplot2)
+par(mfrow = c(2, 2))
+ggplot(mobile_dataset,aes(x=as.factor(price_range), y=battery_power,
+                          fill=as.factor(price_range))) + geom_boxplot()+ labs(
+    x = "Price range",
+    y = "battery_power",
+    title = "Battery_power vs Price Range"
+  )
+ggplot(mobile_dataset,aes(x=as.factor(price_range), y=px_height, 
+                          fill=as.factor(price_range))) + geom_boxplot()+ labs(
+    x = "Price range",
+    y = "px_height",
+    title = "px_height vs Price Range"
+  )
+ggplot(mobile_dataset,aes(x=as.factor(price_range), y=px_width, 
+                          fill=as.factor(price_range))) + geom_boxplot()+labs(
+    x = "Price range",
+    y = "px_width",
+    title = "px_width vs Price Range"
+  )
+ggplot(mobile_dataset,aes(x=as.factor(price_range), y=ram, 
+                          fill=as.factor(price_range))) + geom_boxplot()+labs(
+    x = "Price range",
+    y = "ram",
+    title = "ram vs Price Range"
+  )
+
+ggplot(mobile_dataset,aes(x=as.factor(price_range), y=int_memory,
+                          fill=as.factor(price_range))) + geom_boxplot()+labs(
+    x = "Price range",
+    y = "int_memory",
+    title = "int_memory vs Price Range"
+  )
+ggplot(mobile_dataset,aes(x=as.factor(price_range), y=pc, 
+                          fill=as.factor(price_range))) + geom_boxplot()+labs(
+    x = "Price range",
+    y = "pc",
+    title = "int_memory vs Price Range"
+  )
+#We can see a huge difference in battery power between the price_range 0 and 
+#the price_range 3 but not so much between the 1 and 2.
+```
+Hypothesis testing
+one-sample hypothesis test:
+#Average battery power 
+```{r}
+battery_power_mean <- 1238 # average battery_power
+t.test(mobile_dataset$battery_power,mu=1238,alternative = "less",
+       conf.level = 0.95)
+#Do not reject as p value is greater than 0.05
+#It means that we dont have enough evidence that the average battery power 
+#is less than 1238
+```
+Two sample hypothesis test:
+Null Hypothesis (H0): There is no difference in the average battery power 
+between phones with and without 4G.
+Alternative Hypothesis (H1): There is a significant difference in the average 
+battery power between phones with and without 4G.
+```{r}
+battery_power_4g <- mobile_dataset$battery_power[mobile_dataset$four_g == 1]
+battery_power_no_4g <- mobile_dataset$battery_power[mobile_dataset$four_g == 0]
+t_test_result <- t.test(battery_power_4g, battery_power_no_4g)
+t_test_result
+#Reject the hypothesis as there is a significant difference in average battery
+# power between phones with and without 4G.
+```
+
+Null Hypothesis (H0): There is no difference in the average RAM between phones
+with and without dual SIM.
+Alternative Hypothesis (H1): There is a significant difference in the average 
+RAM between phones with and without dual SIM.
+```{r}
+ram_dual_sim <- mobile_dataset$ram[mobile_dataset$dual_sim == 1]
+ram_no_dual_sim <- mobile_dataset$ram[mobile_dataset$dual_sim == 0]
+t_test_result <- t.test(ram_dual_sim, ram_no_dual_sim)
+print(t_test_result)
+#reject the hypothesis as there is a significant difference in average ram
+# between phones with and without dual sim.
+```
+
+ANOVA:
+```{r}
+anova_result <- aov(battery_power ~ price_range, data = mobile_dataset)
+summary(anova_result)
+
+anova_result1 <- aov(px_height ~ price_range, data = mobile_dataset)
+summary(anova_result1)
+
+anova_result2 <- aov(ram ~ price_range, data = mobile_dataset)
+summary(anova_result2)
+
+anova_result3 <- aov(px_width ~ price_range, data = mobile_dataset)
+summary(anova_result3)
+
+anova_result4 <- aov(int_memory ~ price_range, data = mobile_dataset)
+summary(anova_result4)
+
+anova_result5 <- aov(pc ~ price_range, data = mobile_dataset)
+summary(anova_result5)
+```
+CHI-SQUARE:
+```{r}
+chi_squared_result_3g <- chisq.test(table(mobile_dataset$three_g,
+                                          mobile_dataset$price_range))
+chi_squared_result_3g
+
+chi_squared_result_sim <- chisq.test(table(mobile_dataset$four_g, 
+                                           mobile_dataset$price_range))
+chi_squared_result_sim
+#If the p-value is less than the significance level (0.05), we reject the null 
+#hypothesis, suggesting evidence of an association.
+```
+shapiro test
+
+```{r}
+shapiro_test_result <- shapiro.test(mobile_dataset$ram)
+shapiro_test_result
+#The data is not normally distributed.
+```
+
+# Levene's test for homogeneity of variances
+```{r}
+if (!requireNamespace("car", quietly = TRUE)) {
+  install.packages("car")
+}
+library(car)
+levene_test_result <- leveneTest(mobile_dataset$battery_power, 
+                                 group = mobile_dataset$price_range)
+levene_test_result
+#Variances are significantly different across groups.
+```
+Kruskal-Wallis test(alternative to Anova test)
+```{r}
+#install.packages("coin")
+library(coin)
+
+kw_result1 <- kruskal.test(battery_power ~ price_range, data = mobile_dataset)
+kw_result2 <- kruskal.test(px_height ~ price_range, data = mobile_dataset)
+kw_result3 <- kruskal.test(ram ~ price_range, data = mobile_dataset)
+kw_result4 <- kruskal.test(px_width ~ price_range, data = mobile_dataset)
+kw_result5 <- kruskal.test(int_memory ~ price_range, data = mobile_dataset)
+kw_result6 <- kruskal.test(pc ~ price_range, data = mobile_dataset)
+
+print(kw_result1)
+print(kw_result2)
+print(kw_result3)
+print(kw_result4)
+print(kw_result5)
+print(kw_result6)
+
+```
+
